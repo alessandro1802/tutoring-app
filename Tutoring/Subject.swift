@@ -14,6 +14,7 @@ final class Subject {
     var name: String
     var timestamp: Date
     var comment: String?
+    @Relationship(deleteRule: .cascade) var lessons: [Lesson] = []
     
     init(id: UUID = UUID(), name: String, timestamp: Date = Date(), comment: String? = nil) {
         self.id = id

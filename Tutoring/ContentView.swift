@@ -17,7 +17,7 @@ struct ContentView: View {
             List {
                 ForEach(items) { item in
                     NavigationLink {
-                        Text("Subject at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
+                        LessonsView(subject: item)
                     } label: {
                         VStack(alignment: .leading, spacing: 10) {
                             Text(item.name).font(.headline)
@@ -45,6 +45,7 @@ struct ContentView: View {
         }
     }
 
+    // MARK: - Subject management
     private func addItem() {
         withAnimation {
             let alert = UIAlertController(title: "Add Subject", message: "Enter a name for the new subject", preferredStyle: .alert)
@@ -110,6 +111,7 @@ struct ContentView: View {
             try? modelContext.save()
         }
     }
+
 }
 
 #Preview {
