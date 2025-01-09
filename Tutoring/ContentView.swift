@@ -10,22 +10,23 @@ import SwiftData
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query(sort: \Subject.timestamp, order: .reverse) private var items: [Subject]
+    @Query(sort: \Subject.timestamp, order: .reverse) private var subjects: [Subject]
 
     var body: some View {
         NavigationSplitView {
             List {
-                ForEach(items) { item in
+                ForEach(subjects) { subject in
                     NavigationLink {
-                        LessonsView(subject: item)
+                        LessonsView(subject: subject)
                     } label: {
                         VStack(alignment: .leading, spacing: 10) {
-                            Text(item.name).font(.headline)
-                            Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard)).font(.caption)
+                            // Display a subject
+                            Text(subject.name).font(.headline)
+                            Text(subject.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard)).font(.caption)
                         }
                     }
                 }
-                .onDelete(perform: deleteItems)
+                .onDelete(perform: deleteSubjects)
             }
             .toolbar {
                 ToolbarItem(placement: .principal) {
@@ -35,7 +36,7 @@ struct ContentView: View {
                     EditButton()
                 }
                 ToolbarItem {
-                    Button(action: addItem) {
+                    Button(action: addSubject) {
                         Label("Add subject", systemImage: "plus")
                     }
                 }
@@ -46,23 +47,23 @@ struct ContentView: View {
     }
 
     // MARK: - Subject management
-    private func addItem() {
+    private func addSubject() {
         withAnimation {
             let alert = UIAlertController(title: "Add Subject", message: "Enter a name for the new subject", preferredStyle: .alert)
             alert.addTextField { textField in
-                textField.placeholder = "Subject Name"
+                textField.placeholder = "Subject name"
             }
             alert.addTextField { textField in
-                textField.placeholder = "Coment (optional)"
+                textField.placeholder = "Comment (optional)"
             }
             // Action without automatic dismissal
             let addAction = UIAlertAction(title: "Add", style: .default) { _ in
                 if let nameField = alert.textFields?[0], let name = nameField.text, !name.isEmpty {
                     // Add the new item if the name is valid
-                    let comentField = alert.textFields?[1]
-                    let coment = comentField?.text ?? ""
+                    let commentField = alert.textFields?[1]
+                    let comment = commentField?.text ?? ""
                     
-                    let newItem = Subject(name: name, timestamp: Date(), comment: coment)
+                    let newItem = Subject(name: name, timestamp: Date(), comment: comment)
                     modelContext.insert(newItem)
                     // Save changes to the persistent store
                     try? modelContext.save()
@@ -101,10 +102,10 @@ struct ContentView: View {
         }
     }
 
-    private func deleteItems(offsets: IndexSet) {
+    private func deleteSubjects(offsets: IndexSet) {
         withAnimation {
             for index in offsets {
-                let subject = items[index]
+                let subject = subjects[index]
                 modelContext.delete(subject)
             }
             // Save changes to the persistent store
