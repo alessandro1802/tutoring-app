@@ -1,5 +1,5 @@
 //
-//  Item.swift
+//  Subject.swift
 //  Tutoring
 //
 //  Created by Oleksandr Yasinskyi on 07/01/2025.
@@ -25,12 +25,11 @@ final class Subject {
     var timestamp: Date
     var comment: String?
     var isArchived: Bool
-    
+    var balance: Double
     // Default lesson settings
     var defaultPrice: Double
     var defaultDuration: Int
     var defaultDayOfWeek: WeekDay
-//    var defaultStartTime: Date?
     var defaultHour: Int
     var defaultMinute: Int
     
@@ -55,6 +54,7 @@ final class Subject {
         self.timestamp = timestamp
         self.comment = comment
         self.isArchived = isArchived
+        self.balance = 0
         self.defaultPrice = defaultPrice
         self.defaultDuration = defaultDuration
         self.defaultDayOfWeek = defaultDayOfWeek
@@ -85,10 +85,10 @@ final class Subject {
 
     
     // Computed property to calculate total balance
-    var balance: Double {
-        let totalDeposits = deposits.reduce(0) { $0 + $1.amount }
-        let totalLessonsCost = lessons.filter { $0.status != .new }.reduce(0) { $0 + $1.price }
-        return totalDeposits - totalLessonsCost
-    }
+//    var balance: Double {
+//        let totalDeposits = deposits.reduce(0) { $0 + $1.amount }
+//        let totalLessonsCost = lessons.filter { $0.status != .new }.reduce(0) { $0 + $1.price }
+//        return totalDeposits - totalLessonsCost
+//    }
     
 }

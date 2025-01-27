@@ -124,10 +124,7 @@ extension WeekDay: CaseIterable, CustomStringConvertible {
     
 }
 
-#Preview {
-    let config = ModelConfiguration(isStoredInMemoryOnly: true)
-    let container = try! ModelContainer(for: Subject.self, configurations: config)
-    
+#Preview {  
     let subject = Subject(name: "Math")
     SubjectDetailsView(subject: subject)
 }

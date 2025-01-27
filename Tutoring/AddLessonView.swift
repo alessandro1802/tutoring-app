@@ -48,10 +48,10 @@ struct AddLessonView: View {
                 }
                 Section(header: Text("Status")) {
                     Picker("Status", selection: $status) {
-                        Text("New").tag(LessonStatus.new)
-                        Text("Done").tag(LessonStatus.done)
-                        Text("Paid").tag(LessonStatus.paid)
-                    }
+                        Text("🟦 New").tag(LessonStatus.new)
+                        Text("🟥 Done").tag(LessonStatus.done)
+                        Text("🟩 Paid").tag(LessonStatus.paid)
+                    }.pickerStyle(.segmented)
                 }
                 Section(header: Text("Additional information")) {
                     TextEditor(text: $comment)
@@ -98,15 +98,6 @@ struct AddLessonView: View {
     let container = try! ModelContainer(for: Subject.self, configurations: config)
     
     let subject = Subject(name: "Math")
-    let lesson = Lesson(
-        date: Date(),
-        status: .new,
-        price: 50.0,
-        duration: 45,
-        comment: "Test lesson",
-        subject: subject
-    )
-    
     AddLessonView(subject: subject)
         .modelContainer(container)
 }

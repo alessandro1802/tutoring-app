@@ -42,7 +42,7 @@ struct ContentView: View {
         }
     }
     
-    // MARK: - Subject Row View
+    // MARK: Subject view
     struct SubjectRowView: View {
         let subject: Subject
         @Environment(\.modelContext) private var modelContext
@@ -59,16 +59,15 @@ struct ContentView: View {
                 }
                 
                 HStack {
-                    Text("Balance: ")
-                    Text(String(format: "%.2f", subject.balance))
-                        .foregroundColor(subject.balance >= 0 ? .green : .red)
+                    Text("Balance: \(subject.balance, format: .currency(code: "PLN"))")
+                        .foregroundColor(subject.balance > 0 ? .green : (subject.balance < 0 ? .red : .black))
                 }
                 .font(.caption)
             }
         }
     }
 
-    // MARK: - Subject management
+    // MARK: Subject management
     private func addSubject() {
         let alert = UIAlertController(title: "Add Subject", message: "Enter a name for the new subject", preferredStyle: .alert)
         alert.addTextField { textField in

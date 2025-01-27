@@ -21,16 +21,6 @@ struct LessonsView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-//            if !showAllLessons {
-//                Text("Carryover: \(carryOverBalance, format: .currency(code: "USD"))")
-//                    .padding(.bottom)
-//            }
-//            List {
-//                ForEach(filteredLessons) { lesson in
-//                    LessonRowView(lesson: lesson)
-//                }
-//                .onDelete(perform: deleteLessons)
-//            }
             List {
                 ForEach(filteredLessons) { lesson in
                     LessonRowView(lesson: lesson)
@@ -41,10 +31,14 @@ struct LessonsView: View {
                 .onDelete(perform: deleteLessons)
             }
             if !showAllLessons {
-                Text("Balance: \(currentMonthBalance, format: .currency(code: "USD"))")
-                    .foregroundColor(currentMonthBalance >= 0 ? .green : .red)
+                Text("Balance: \(currentMonthBalance, format: .currency(code: "PLN"))")
+                    .foregroundColor(currentMonthBalance > 0 ? .green : (currentMonthBalance < 0 ? .red : .black))
                     .padding()
+                
             }
+            // TODO total balance for for allLessons
+//            Text("Balance: \(subject.balance, format: .currency(code: "PLN"))")
+//                .foregroundColor(subject.balance > 0 ? .green : (subject.balance < 0 ? .red : .black))
             // Month navigation
             HStack {
                 if showAllLessons {
@@ -87,17 +81,17 @@ struct LessonsView: View {
                 }
             }
         }
+        .sheet(item: $selectedLesson) { lesson in
+            LessonDetailsView(lesson: lesson)
+        }
         .sheet(isPresented: $isAddingLesson) {
             AddLessonView(subject: subject)
         }
-//        .sheet(isPresented: $showingDepositSheet) {
-//            DepositView(subject: subject)
-//        }
         .sheet(isPresented: $showingSubjectDetails) {
             SubjectDetailsView(subject: subject)
         }
-        .sheet(item: $selectedLesson) { lesson in
-            LessonDetailsView(lesson: lesson)
+        .sheet(isPresented: $showingDepositSheet) {
+            AddDepositView(subject: subject)
         }
     }
     
@@ -138,7 +132,7 @@ struct LessonsView: View {
                 VStack(alignment: .leading) {
                     Text(lesson.date.formatted(date: .long, time: .shortened))
                         .font(.headline)
-                    Text("\(lesson.duration) min • \(lesson.price, format: .currency(code: "USD"))")
+                    Text("\(lesson.duration) min • \(lesson.price, format: .currency(code: "PLN"))")
                         .font(.caption)
                     if let comment = lesson.comment {
                         Text(comment)
@@ -220,15 +214,6 @@ struct LessonsView: View {
     let container = try! ModelContainer(for: Subject.self, configurations: config)
     
     let subject = Subject(name: "Math")
-    let lesson = Lesson(
-        date: Date(),
-        status: .new,
-        price: 50.0,
-        duration: 45,
-        comment: "Test lesson",
-        subject: subject
-    )
-    
     LessonsView(subject: subject)
         .modelContainer(container)
 }
