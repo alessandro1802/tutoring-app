@@ -1,36 +1,39 @@
 //
-//  AddLessonView.swift
+//  LessonDetailsView.swift
 //  Tutoring
 //
-//  Created by Oleksandr Yasinskyi on 09/01/2025.
+//  Created by Oleksandr Yasinskyi on 27/01/2025.
 //
 
 import SwiftUI
 import SwiftData
 
-struct AddLessonView: View {
+struct LessonDetailsView: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.modelContext) private var modelContext
+    @Bindable var lesson: Lesson
     
-    @Bindable var subject: Subject
-    @State private var date = Date()
+    @State private var date: Date
     @State private var price: Double
     @State private var duration: Double
-    @State private var comment: String = ""
-    @State private var status: LessonStatus = .new
+    @State private var comment: String
+    @State private var status: LessonStatus
     
-    init(subject: Subject) {
-        self.subject = subject
-        _date = State(initialValue: subject.getClosestDate() ?? Date())
-        _price = State(initialValue: subject.defaultPrice)
-        _duration = State(initialValue: Double(subject.defaultDuration))
+    init(lesson: Lesson) {
+        self.lesson = lesson
+        _date = State(initialValue: lesson.date)
+        _price = State(initialValue: lesson.price)
+        _duration = State(initialValue: Double(lesson.duration))
+        _comment = State(initialValue: lesson.comment ?? "")
+        _status = State(initialValue: lesson.status)
     }
     
     var body: some View {
         NavigationView {
             Form {
-                Section(header: Text("Lesson Details")) {
-                    DatePicker("Date and Time", selection: $date)
+                Section() {
+                    DatePicker("Date and time", selection: $date)
+                    
                     HStack {
                         Text("Price")
                         Spacer()
@@ -38,6 +41,7 @@ struct AddLessonView: View {
                             .keyboardType(.decimalPad)
                             .multilineTextAlignment(.trailing)
                     }
+                    
                     HStack {
                         Text("Duration (minutes)")
                         Spacer()
@@ -46,28 +50,31 @@ struct AddLessonView: View {
                             .multilineTextAlignment(.trailing)
                     }
                 }
+                
                 Section(header: Text("Status")) {
                     Picker("Status", selection: $status) {
                         Text("New").tag(LessonStatus.new)
                         Text("Done").tag(LessonStatus.done)
                         Text("Paid").tag(LessonStatus.paid)
                     }
+                    .pickerStyle(.segmented)
                 }
+                
                 Section(header: Text("Additional information")) {
                     TextEditor(text: $comment)
                         .frame(height: 100)
                 }
             }
-            .navigationTitle("Add lesson")
+            .navigationTitle("Lesson details")
             .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
-                        addLesson()
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Cancel") {
                         dismiss()
                     }
                 }
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Save") {
+                        saveChanges()
                         dismiss()
                     }
                 }
@@ -75,20 +82,14 @@ struct AddLessonView: View {
         }
     }
     
-    private func addLesson() {
-        let newLesson = Lesson(
-            date: date,
-            status: status,
-            price: price,
-            duration: Int(duration),
-            comment: comment.isEmpty ? nil : comment,
-            subject: subject
-        )
-        withAnimation {
-            subject.lessons.append(newLesson)
-            modelContext.insert(newLesson)
-            try? modelContext.save()
-        }
+    private func saveChanges() {
+        lesson.date = date
+        lesson.price = price
+        lesson.duration = Int(duration)
+        lesson.comment = comment.isEmpty ? nil : comment
+        lesson.status = status
+        
+        try? modelContext.save()
     }
     
 }
@@ -107,6 +108,6 @@ struct AddLessonView: View {
         subject: subject
     )
     
-    AddLessonView(subject: subject)
+    LessonDetailsView(lesson: lesson)
         .modelContainer(container)
 }

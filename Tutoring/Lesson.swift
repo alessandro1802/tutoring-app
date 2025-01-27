@@ -8,17 +8,39 @@
 import Foundation
 import SwiftData
 
+enum LessonStatus: String, Codable {
+    case new     // scheduled but not done
+    case done    // finished but not paid
+    case paid    // finished and paid
+}
+
 @Model
 class Lesson {
     var id: UUID
-    var title: String
     var date: Date
+    var status: LessonStatus
+    var price: Double
+    var duration: Int  // in minutes
+    var comment: String?
+    
     @Relationship(deleteRule: .cascade) var subject: Subject
-
-    init(id: UUID = UUID(), title: String, date: Date, subject: Subject) {
+    
+    init(
+        id: UUID = UUID(),
+        date: Date,
+        status: LessonStatus = .new,
+        price: Double,
+        duration: Int = 45,
+        comment: String? = nil,
+        subject: Subject
+    ) {
         self.id = id
-        self.title = title
         self.date = date
+        self.status = status
+        self.price = price
+        self.duration = duration
+        self.comment = comment
         self.subject = subject
     }
+    
 }

@@ -19,11 +19,7 @@ struct ContentView: View {
                     NavigationLink {
                         LessonsView(subject: subject)
                     } label: {
-                        VStack(alignment: .leading, spacing: 10) {
-                            // Display a subject
-                            Text(subject.name).font(.headline)
-                            Text(subject.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard)).font(.caption)
-                        }
+                        SubjectRowView(subject: subject)
                     }
                 }
                 .onDelete(perform: deleteSubjects)
@@ -45,60 +41,84 @@ struct ContentView: View {
             Text("Select a subject")
         }
     }
+    
+    // MARK: - Subject Row View
+    struct SubjectRowView: View {
+        let subject: Subject
+        @Environment(\.modelContext) private var modelContext
+        
+        var body: some View {
+            VStack(alignment: .leading, spacing: 8) {
+                Text(subject.name)
+                    .font(.headline)
+                
+                if let comment = subject.comment, !comment.isEmpty {
+                    Text(comment)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                
+                HStack {
+                    Text("Balance: ")
+                    Text(String(format: "%.2f", subject.balance))
+                        .foregroundColor(subject.balance >= 0 ? .green : .red)
+                }
+                .font(.caption)
+            }
+        }
+    }
 
     // MARK: - Subject management
     private func addSubject() {
-        withAnimation {
-            let alert = UIAlertController(title: "Add Subject", message: "Enter a name for the new subject", preferredStyle: .alert)
-            alert.addTextField { textField in
-                textField.placeholder = "Subject name"
-            }
-            alert.addTextField { textField in
-                textField.placeholder = "Comment (optional)"
-            }
-            // Action without automatic dismissal
-            let addAction = UIAlertAction(title: "Add", style: .default) { _ in
-                if let nameField = alert.textFields?[0], let name = nameField.text, !name.isEmpty {
-                    // Add the new item if the name is valid
-                    let commentField = alert.textFields?[1]
-                    let comment = commentField?.text ?? ""
-                    
-                    let newItem = Subject(name: name, timestamp: Date(), comment: comment)
-                    modelContext.insert(newItem)
+        let alert = UIAlertController(title: "Add Subject", message: "Enter a name for the new subject", preferredStyle: .alert)
+        alert.addTextField { textField in
+            textField.placeholder = "Subject name"
+        }
+        alert.addTextField { textField in
+            textField.placeholder = "Comment (optional)"
+        }
+        let addAction = UIAlertAction(title: "Add", style: .default) { _ in
+            // Add the new Subject if the name is valid
+            if let nameField = alert.textFields?[0], let name = nameField.text, !name.isEmpty {
+                let commentField = alert.textFields?[1]
+                let comment = commentField?.text ?? ""
+                let newSubject = Subject(
+                    name: name,
+                    comment: comment.isEmpty ? nil : comment
+                )
+                withAnimation {
+                    modelContext.insert(newSubject)
                     // Save changes to the persistent store
                     try? modelContext.save()
+                }
+            } else {
+                if let nameField = alert.textFields?[0] {
+                    let animation = CABasicAnimation(keyPath: "position")
+                    animation.duration = 0.05
+                    animation.repeatCount = 3
+                    animation.autoreverses = true
+                    animation.fromValue = NSValue(cgPoint: CGPoint(x: alert.view.center.x - 10, y: alert.view.center.y))
+                    animation.toValue = NSValue(cgPoint: CGPoint(x: alert.view.center.x + 10, y: alert.view.center.y))
+                    alert.view.layer.add(animation, forKey: "position")
                     
-                } else {
-                    // Keep the alert open and show error indicators
-                    if let nameField = alert.textFields?[0] {
-                        // Shake animation for the alert
-                        let animation = CABasicAnimation(keyPath: "position")
-                        animation.duration = 0.05
-                        animation.repeatCount = 3
-                        animation.autoreverses = true
-                        animation.fromValue = NSValue(cgPoint: CGPoint(x: alert.view.center.x - 10, y: alert.view.center.y))
-                        animation.toValue = NSValue(cgPoint: CGPoint(x: alert.view.center.x + 10, y: alert.view.center.y))
-                        alert.view.layer.add(animation, forKey: "position")
-                        // Change the text field placeholder to red
-                        nameField.attributedPlaceholder = NSAttributedString(
-                            string: "Name is required",
-                            attributes: [NSAttributedString.Key.foregroundColor: UIColor.red]
-                        )
-                    }
-                    // Re-present the alert to keep it open
-                    if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-                       let rootViewController = windowScene.windows.first?.rootViewController {
-                        rootViewController.present(alert, animated: true, completion: nil)
-                    }
+                    nameField.attributedPlaceholder = NSAttributedString(
+                        string: "Name is required",
+                        attributes: [NSAttributedString.Key.foregroundColor: UIColor.red]
+                    )
+                }
+                // Re-present the alert to keep it open
+                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                   let rootViewController = windowScene.windows.first?.rootViewController {
+                    rootViewController.present(alert, animated: true, completion: nil)
                 }
             }
-            alert.addAction(addAction)
-            alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-            // Present the alert
-            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-               let rootViewController = windowScene.windows.first?.rootViewController {
-                rootViewController.present(alert, animated: true, completion: nil)
-            }
+        }
+        alert.addAction(addAction)
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        // Present the alert
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let rootViewController = windowScene.windows.first?.rootViewController {
+            rootViewController.present(alert, animated: true, completion: nil)
         }
     }
 
