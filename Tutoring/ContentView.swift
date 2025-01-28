@@ -23,7 +23,7 @@ struct ContentView: View {
     var body: some View {
         NavigationSplitView {
             List {
-                ForEach(subjects.filter { $0.isArchived == showArchived }) { subject in
+                ForEach(subjects.filter({ $0.isArchived == showArchived }).sorted(by: { $0.name < $1.name })) { subject in
                     NavigationLink {
                         LessonsView(subject: subject)
                     } label: {
