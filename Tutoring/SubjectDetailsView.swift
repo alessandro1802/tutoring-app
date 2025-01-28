@@ -88,7 +88,7 @@ struct SubjectDetailsView: View {
                     }
                 }
             }
-            .navigationTitle("Subject details")
+            .navigationTitle("Details")
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button("Cancel") {

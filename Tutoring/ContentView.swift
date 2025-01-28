@@ -55,7 +55,7 @@ struct ContentView: View {
                     HStack(spacing: 3) {
                         if !showArchived {
                             Button(action: addSubject) {
-                                Label("Add subject", systemImage: "plus")
+                                Label("Add", systemImage: "plus")
                             }
                         }
                         EditButton()
@@ -105,9 +105,17 @@ struct ContentView: View {
 
     // MARK: Subject management
     private func addSubject() {
-        let alert = UIAlertController(title: "Add subject", message: "Enter a name for the new subject", preferredStyle: .alert)
-        alert.addTextField { textField in
-            textField.placeholder = "Subject name"
+        let alert: UIAlertController
+        if isUserTutor {
+            alert = UIAlertController(title: "Add student", message: "Enter the name of the student", preferredStyle: .alert)
+            alert.addTextField { textField in
+                textField.placeholder = "Student name"
+            }
+        } else {
+            alert = UIAlertController(title: "Add subject", message: "Enter the name of the subject", preferredStyle: .alert)
+            alert.addTextField { textField in
+                textField.placeholder = "Subject name"
+            }
         }
         alert.addTextField { textField in
             textField.placeholder = "Comment (optional)"
