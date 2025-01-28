@@ -20,6 +20,7 @@ struct SubjectDetailsView: View {
     @State private var defaultDayOfWeek: WeekDay
     @State private var defaultStartTime: Date
     @State private var isArchived: Bool
+    @State private var allowArchive: Bool
     @Query private var settings: [AppSettings]
     private var isUserTutor: Bool {
         settings.first?.isUserTutor ?? false
@@ -39,6 +40,7 @@ struct SubjectDetailsView: View {
                                                                       minute: subject.defaultMinute, second: 0,
                                                                       of: Date()) ?? Date())
         _isArchived = State(initialValue: subject.isArchived)
+        _allowArchive = State(initialValue: !subject.lessons.isEmpty)
     }
     
     var body: some View {
@@ -70,14 +72,13 @@ struct SubjectDetailsView: View {
                             Text(day.description).tag(day)
                         }
                     }
-                    
                     DatePicker("Start time", selection: $defaultStartTime, displayedComponents: .hourAndMinute)
                 }
-                
-                Section {
-                    Toggle("Archive subject", isOn: $isArchived)
+                if allowArchive {
+                    Section {
+                        Toggle("Archive subject", isOn: $isArchived)
+                    }
                 }
-                
                 Section("Financial summary") {
                     let balance = isUserTutor ? subject.calculateTutorsBalance() : subject.calculateBalance()
                     HStack {

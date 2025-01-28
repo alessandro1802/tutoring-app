@@ -10,6 +10,7 @@ import SwiftData
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
+    @State private var showArchived: Bool = false
     @Query(sort: \Subject.timestamp, order: .reverse) private var subjects: [Subject]
     @Query private var settings: [AppSettings]
     var isUserTutor: Bool {
@@ -22,7 +23,7 @@ struct ContentView: View {
     var body: some View {
         NavigationSplitView {
             List {
-                ForEach(subjects) { subject in
+                ForEach(subjects.filter { $0.isArchived == showArchived }) { subject in
                     NavigationLink {
                         LessonsView(subject: subject)
                     } label: {
@@ -34,13 +35,28 @@ struct ContentView: View {
                 .onDelete(perform: deleteSubjects)
             }
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button(action: toggleArchiveView) {
+                        if showArchived{
+                            Label("Back", systemImage: "rectangle.lefthalf.inset.filled.arrow.left")
+                        } else {
+                            Label("Archive", systemImage: "archivebox.fill")
+                        }
+                    }
+                }
                 ToolbarItem(placement: .principal) {
-                    Text("Tutoring").font(.title).bold()
+                    if showArchived {
+                        Text("Arhived subjects").font(.headline)
+                    } else {
+                        Text("Tutoring").font(.title).bold()
+                    }
                 }
                 ToolbarItem {
                     HStack(spacing: 3) {
-                        Button(action: addSubject) {
-                            Label("Add subject", systemImage: "plus")
+                        if !showArchived {
+                            Button(action: addSubject) {
+                                Label("Add subject", systemImage: "plus")
+                            }
                         }
                         EditButton()
                         NavigationLink(destination: SettingsView()) {
@@ -81,6 +97,10 @@ struct ContentView: View {
                 .font(.caption)
             }
         }
+    }
+    
+    private func toggleArchiveView() {
+        showArchived.toggle()
     }
 
     // MARK: Subject management
