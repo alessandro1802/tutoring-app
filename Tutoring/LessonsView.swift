@@ -16,6 +16,7 @@ struct LessonsView: View {
     @State private var showAllLessons = false
     @State private var isAddingLesson = false
     @State private var showingDepositSheet = false
+    @State private var viewingDeposits = false
     @State private var showingSubjectDetails = false
     @State private var selectedLesson: Lesson?
     @Query private var settings: [AppSettings]
@@ -86,7 +87,10 @@ struct LessonsView: View {
                     }
                     if !isUserTutor {
                         Button(action: { showingDepositSheet = true }) {
-                            Label("Add deposit", systemImage: "banknote")
+                            Label("Add deposit", systemImage: "banknote.fill")
+                        }
+                        Button(action: { viewingDeposits = true }) {
+                            Label("Deposit history", systemImage: "cedisign.arrow.trianglehead.counterclockwise.rotate.90")
                         }
                     }
                     Toggle(isOn: $showAllLessons) {
@@ -108,6 +112,9 @@ struct LessonsView: View {
         }
         .sheet(isPresented: $showingDepositSheet) {
             AddDepositView(subject: subject)
+        }
+        .sheet(isPresented: $viewingDeposits) {
+            DepositsView(subject: subject)
         }
     }
     
