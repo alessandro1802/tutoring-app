@@ -72,8 +72,12 @@ struct SubjectDetailsView: View {
                 }
                 
                 Section("Financial summary") {
-                    LabeledContent("Total Balance", value: subject.balance, format: .currency(code: "USD"))
-                        .foregroundColor(subject.balance >= 0 ? .green : .red)
+                    let balance = subject.calculateBalance()
+                    HStack {
+                        Text("Total balance:")
+                        Text("\(balance, format: .currency(code: "PLN"))")
+                            .foregroundColor(balance > 0 ? .green : (balance < 0 ? .red : .black))
+                    }
                 }
             }
             .navigationTitle("Subject details")

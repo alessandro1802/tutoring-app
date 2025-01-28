@@ -30,8 +30,9 @@ struct AddDepositView: View {
                     DatePicker("Date", selection: $date)
                 }
                 Section("Current balance") {
-                    Text(subject.balance, format: .currency(code: "PLN"))
-                        .foregroundColor(subject.balance > 0 ? .green : (subject.balance < 0 ? .red : .black))
+                    let balance = subject.calculateBalance()
+                    Text("\(balance, format: .currency(code: "PLN"))")
+                        .foregroundColor(balance > 0 ? .green : (balance < 0 ? .red : .black))
                 }
             }
             .navigationTitle("Add deposit")
@@ -58,21 +59,10 @@ struct AddDepositView: View {
         let newDeposit = Deposit(amount: amount, date: date, subject: subject)
         subject.deposits.append(newDeposit)
         modelContext.insert(newDeposit)
-        // Update the subject's balance
-        subject.balance = calculateNewBalance()
         try? modelContext.save()
     }
     
-    private func calculateNewBalance() -> Double {
-        // Get all deposits up to the current date
-        let allDeposits = subject.deposits.filter { $0.date <= date }
-        let totalDeposits = allDeposits.reduce(0) { $0 + $1.amount }
-        // Get all completed lessons up to the current date
-        let completedLessons = subject.lessons
-            .filter { $0.date <= date && $0.status != .new }
-        let totalLessonsCost = completedLessons.reduce(0) { $0 + $1.price }
-        return totalDeposits - totalLessonsCost
-    }
+    
 }
 
 #Preview {

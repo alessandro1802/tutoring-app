@@ -59,8 +59,10 @@ struct ContentView: View {
                 }
                 
                 HStack {
-                    Text("Balance: \(subject.balance, format: .currency(code: "PLN"))")
-                        .foregroundColor(subject.balance > 0 ? .green : (subject.balance < 0 ? .red : .black))
+                    let balance = subject.calculateBalance()
+                    Text("Balance:")
+                    Text("\(balance, format: .currency(code: "PLN"))")
+                        .foregroundColor(balance > 0 ? .green : (balance < 0 ? .red : .black))
                 }
                 .font(.caption)
             }

@@ -30,15 +30,20 @@ struct LessonsView: View {
                 }
                 .onDelete(perform: deleteLessons)
             }
-            if !showAllLessons {
-                Text("Balance: \(currentMonthBalance, format: .currency(code: "PLN"))")
-                    .foregroundColor(currentMonthBalance > 0 ? .green : (currentMonthBalance < 0 ? .red : .black))
-                    .padding()
-                
+            Group {
+                if showAllLessons {
+                    let balance = subject.calculateBalance()
+                    Text("Total balance:")
+                    + Text("\(balance, format: .currency(code: "PLN"))")
+                        .foregroundColor(balance > 0 ? .green : (balance < 0 ? .red : .black))
+                } else {
+                    Text("Monthly balance: ")
+                    + Text("\(currentMonthBalance, format: .currency(code: "PLN"))")
+                        .foregroundColor(currentMonthBalance > 0 ? .green : (currentMonthBalance < 0 ? .red : .black))
+                }
             }
-            // TODO total balance for for allLessons
-//            Text("Balance: \(subject.balance, format: .currency(code: "PLN"))")
-//                .foregroundColor(subject.balance > 0 ? .green : (subject.balance < 0 ? .red : .black))
+            .multilineTextAlignment(.center)
+            .padding()
             // Month navigation
             HStack {
                 if showAllLessons {
@@ -161,9 +166,9 @@ struct LessonsView: View {
     }
     
     // MARK: Navigation helpers
-    private var isNextMonthDisabled: Bool {
-        !showAllLessons && Calendar.current.isDate(selectedMonth, equalTo: Date(), toGranularity: .month)
-    }
+//    private var isNextMonthDisabled: Bool {
+//        !showAllLessons && Calendar.current.isDate(selectedMonth, equalTo: Date(), toGranularity: .month)
+//    }
     
     private func previousMonth() {
         withAnimation {
@@ -177,13 +182,13 @@ struct LessonsView: View {
         }
     }
     
-    // MARK: Balances
+    // MARK: Balance
     private var carryOverBalance: Double {
         let previousMonthEnd = Calendar.current.date(byAdding: .month, value: -1, to: selectedMonth)!
         return subject.lessons
             .filter { $0.date <= previousMonthEnd }
             .reduce(0) { total, lesson in
-                if lesson.status != .new {
+                if lesson.status == .paid {
                     return total - lesson.price
                 }
                 return total
@@ -199,21 +204,20 @@ struct LessonsView: View {
         let monthDeposits = subject.deposits.filter {
             Calendar.current.isDate($0.date, equalTo: selectedMonth, toGranularity: .month)
         }
-        
         let lessonsCost = monthLessons
-            .filter { $0.status != .new }
+            .filter { $0.status == .paid }
             .reduce(0) { $0 + $1.price }
         let depositsSum = monthDeposits.reduce(0) { $0 + $1.amount }
-        
         return carryOverBalance + depositsSum - lessonsCost
     }
+
 }
 
-#Preview {
-    let config = ModelConfiguration(isStoredInMemoryOnly: true)
-    let container = try! ModelContainer(for: Subject.self, configurations: config)
-    
-    let subject = Subject(name: "Math")
-    LessonsView(subject: subject)
-        .modelContainer(container)
-}
+//#Preview {
+//    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+//    let container = try! ModelContainer(for: Subject.self, configurations: config)
+//    
+//    let subject = Subject(name: "Math")
+//    LessonsView(subject: subject)
+//        .modelContainer(container)
+//}

@@ -25,7 +25,6 @@ final class Subject {
     var timestamp: Date
     var comment: String?
     var isArchived: Bool
-    var balance: Double
     // Default lesson settings
     var defaultPrice: Double
     var defaultDuration: Int
@@ -54,7 +53,6 @@ final class Subject {
         self.timestamp = timestamp
         self.comment = comment
         self.isArchived = isArchived
-        self.balance = 0
         self.defaultPrice = defaultPrice
         self.defaultDuration = defaultDuration
         self.defaultDayOfWeek = defaultDayOfWeek
@@ -82,13 +80,17 @@ final class Subject {
         }
         return nil
     }
-
     
-    // Computed property to calculate total balance
-//    var balance: Double {
-//        let totalDeposits = deposits.reduce(0) { $0 + $1.amount }
-//        let totalLessonsCost = lessons.filter { $0.status != .new }.reduce(0) { $0 + $1.price }
-//        return totalDeposits - totalLessonsCost
-//    }
+    func calculateBalance() -> Double {
+        // Get all deposits up to the current date
+//        let allDeposits = deposits.filter { $0.date <= Date() }
+//        let totalDeposits = allDeposits.reduce(0) { $0 + $1.amount }
+        let totalDeposits = deposits.reduce(0) { $0 + $1.amount }
+        // Get all paid lessons
+        let completedLessons = lessons
+            .filter {$0.status == .paid }
+        let totalLessonsCost = completedLessons.reduce(0) { $0 + $1.price }
+        return totalDeposits - totalLessonsCost
+    }
     
 }

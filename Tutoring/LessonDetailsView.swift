@@ -53,11 +53,10 @@ struct LessonDetailsView: View {
                 
                 Section(header: Text("Status")) {
                     Picker("Status", selection: $status) {
-                        Text("New").tag(LessonStatus.new)
-                        Text("Done").tag(LessonStatus.done)
-                        Text("Paid").tag(LessonStatus.paid)
-                    }
-                    .pickerStyle(.segmented)
+                        Text("🟦 New").tag(LessonStatus.new)
+                        Text("🟥 Done").tag(LessonStatus.done)
+                        Text("🟩 Paid").tag(LessonStatus.paid)
+                    }.pickerStyle(.segmented)
                 }
                 
                 Section(header: Text("Additional information")) {
