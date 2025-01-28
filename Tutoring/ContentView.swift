@@ -11,6 +11,10 @@ import SwiftData
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \Subject.timestamp, order: .reverse) private var subjects: [Subject]
+    @Query private var settings: [AppSettings]
+    var isUserTutor: Bool {
+        settings.first?.isUserTutor ?? false
+    }
 
     var body: some View {
         NavigationSplitView {
@@ -19,21 +23,24 @@ struct ContentView: View {
                     NavigationLink {
                         LessonsView(subject: subject)
                     } label: {
-                        SubjectRowView(subject: subject)
+                        SubjectRowView(subject: subject, isUserTutor: isUserTutor)
                     }
                 }
                 .onDelete(perform: deleteSubjects)
             }
             .toolbar {
                 ToolbarItem(placement: .principal) {
-                    Text("Tutoring").font(.title)
-                }
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
+                    Text("Tutoring").font(.title).bold()
                 }
                 ToolbarItem {
-                    Button(action: addSubject) {
-                        Label("Add subject", systemImage: "plus")
+                    HStack(spacing: 3) {
+                        Button(action: addSubject) {
+                            Label("Add subject", systemImage: "plus")
+                        }
+                        EditButton()
+                        NavigationLink(destination: SettingsView()) {
+                            Label("Settings", systemImage: "gear")
+                        }
                     }
                 }
             }
@@ -45,6 +52,7 @@ struct ContentView: View {
     // MARK: Subject view
     struct SubjectRowView: View {
         let subject: Subject
+        let isUserTutor: Bool
         @Environment(\.modelContext) private var modelContext
         
         var body: some View {
@@ -59,7 +67,7 @@ struct ContentView: View {
                 }
                 
                 HStack {
-                    let balance = subject.calculateBalance()
+                    let balance = isUserTutor ? subject.calculateTutorsBalance() : subject.calculateBalance()
                     Text("Balance:")
                     Text("\(balance, format: .currency(code: "PLN"))")
                         .foregroundColor(balance > 0 ? .green : (balance < 0 ? .red : .black))
@@ -71,7 +79,7 @@ struct ContentView: View {
 
     // MARK: Subject management
     private func addSubject() {
-        let alert = UIAlertController(title: "Add Subject", message: "Enter a name for the new subject", preferredStyle: .alert)
+        let alert = UIAlertController(title: "Add subject", message: "Enter a name for the new subject", preferredStyle: .alert)
         alert.addTextField { textField in
             textField.placeholder = "Subject name"
         }

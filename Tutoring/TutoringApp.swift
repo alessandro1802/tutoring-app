@@ -13,6 +13,9 @@ struct TutoringApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Subject.self,
+            Lesson.self,
+            Deposit.self,
+            AppSettings.self
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
@@ -29,6 +32,5 @@ struct TutoringApp: App {
         }
         .modelContainer(sharedModelContainer)
     }
+    
 }
-
-

@@ -20,6 +20,10 @@ struct SubjectDetailsView: View {
     @State private var defaultDayOfWeek: WeekDay
     @State private var defaultStartTime: Date
     @State private var isArchived: Bool
+    @Query private var settings: [AppSettings]
+    private var isUserTutor: Bool {
+        settings.first?.isUserTutor ?? false
+    }
     
     init(subject: Subject) {
         self.subject = subject
@@ -72,7 +76,7 @@ struct SubjectDetailsView: View {
                 }
                 
                 Section("Financial summary") {
-                    let balance = subject.calculateBalance()
+                    let balance = isUserTutor ? subject.calculateTutorsBalance() : subject.calculateBalance()
                     HStack {
                         Text("Total balance:")
                         Text("\(balance, format: .currency(code: "PLN"))")

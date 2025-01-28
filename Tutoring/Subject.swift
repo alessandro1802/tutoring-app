@@ -83,14 +83,24 @@ final class Subject {
     
     func calculateBalance() -> Double {
         // Get all deposits up to the current date
-//        let allDeposits = deposits.filter { $0.date <= Date() }
-//        let totalDeposits = allDeposits.reduce(0) { $0 + $1.amount }
         let totalDeposits = deposits.reduce(0) { $0 + $1.amount }
         // Get all paid lessons
         let completedLessons = lessons
             .filter {$0.status == .paid }
         let totalLessonsCost = completedLessons.reduce(0) { $0 + $1.price }
         return totalDeposits - totalLessonsCost
+    }
+    
+    func calculateTutorsBalance() -> Double {
+        // Get all paid lessons
+        let paidLessons = lessons
+            .filter {$0.status == .paid }
+            .reduce(0) { $0 + $1.price }
+        // Get all unpaid lessons
+        let uppaidLessons = lessons
+            .filter { $0.status == .done }
+            .reduce(0) { $0 + $1.price }
+        return paidLessons - uppaidLessons
     }
     
 }

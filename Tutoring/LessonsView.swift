@@ -18,6 +18,10 @@ struct LessonsView: View {
     @State private var showingDepositSheet = false
     @State private var showingSubjectDetails = false
     @State private var selectedLesson: Lesson?
+    @Query private var settings: [AppSettings]
+    private var isUserTutor: Bool {
+        settings.first?.isUserTutor ?? false
+    }
     
     var body: some View {
         VStack(spacing: 0) {
@@ -32,14 +36,15 @@ struct LessonsView: View {
             }
             Group {
                 if showAllLessons {
-                    let balance = subject.calculateBalance()
-                    Text("Total balance:")
+                    let balance = isUserTutor ? subject.calculateTutorsBalance() : subject.calculateBalance()
+                    Text("Total balance: ")
                     + Text("\(balance, format: .currency(code: "PLN"))")
                         .foregroundColor(balance > 0 ? .green : (balance < 0 ? .red : .black))
                 } else {
+                    let balance = isUserTutor ? tutorsMonthBalance : currentMonthBalance
                     Text("Monthly balance: ")
-                    + Text("\(currentMonthBalance, format: .currency(code: "PLN"))")
-                        .foregroundColor(currentMonthBalance > 0 ? .green : (currentMonthBalance < 0 ? .red : .black))
+                    + Text("\(balance, format: .currency(code: "PLN"))")
+                        .foregroundColor(balance > 0 ? .green : (balance < 0 ? .red : .black))
                 }
             }
             .multilineTextAlignment(.center)
@@ -75,8 +80,10 @@ struct LessonsView: View {
                     Button(action: { showingSubjectDetails = true }) {
                         Label("Subject details", systemImage: "info.circle")
                     }
-                    Button(action: { showingDepositSheet = true }) {
-                        Label("Add deposit", systemImage: "banknote")
+                    if !isUserTutor {
+                        Button(action: { showingDepositSheet = true }) {
+                            Label("Add deposit", systemImage: "banknote")
+                        }
                     }
                     Toggle(isOn: $showAllLessons) {
                         Label("Show all lessons", systemImage: "list.bullet")
@@ -209,6 +216,19 @@ struct LessonsView: View {
             .reduce(0) { $0 + $1.price }
         let depositsSum = monthDeposits.reduce(0) { $0 + $1.amount }
         return carryOverBalance + depositsSum - lessonsCost
+    }
+    
+    private var tutorsMonthBalance: Double {
+        let monthLessons = subject.lessons.filter {
+            Calendar.current.isDate($0.date, equalTo: selectedMonth, toGranularity: .month)
+        }
+        let paidCost = monthLessons
+            .filter { $0.status == .paid }
+            .reduce(0) { $0 + $1.price }
+        let uppaidCost = monthLessons
+            .filter { $0.status == .done }
+            .reduce(0) { $0 + $1.price }
+        return paidCost - uppaidCost
     }
 
 }
