@@ -7,6 +7,7 @@
 
 
 import SwiftUI
+import SwiftData
 
 struct AddDepositView: View {
     @Environment(\.dismiss) var dismiss
@@ -15,6 +16,11 @@ struct AddDepositView: View {
     @Bindable var subject: Subject
     @State private var amount: Double = 0.0
     @State private var date = Date()
+    @Query private var settings: [AppSettings]
+    var currencyCode: String {
+        settings.first?.currencyCode ?? "USD"
+    }
+//    var currencyCode: String = "PLN"
     
     var body: some View {
         NavigationView {
@@ -23,7 +29,7 @@ struct AddDepositView: View {
                     HStack {
                         Text("Amount")
                         Spacer()
-                        TextField("Amount", value: $amount, format: .currency(code: "PLN"))
+                        TextField("Amount", value: $amount, format: .currency(code: currencyCode))
                             .keyboardType(.decimalPad)
                             .multilineTextAlignment(.trailing)
                     }
@@ -31,7 +37,7 @@ struct AddDepositView: View {
                 }
                 Section("Current balance") {
                     let balance = subject.calculateBalance()
-                    Text("\(balance, format: .currency(code: "PLN"))")
+                    Text("\(balance, format: .currency(code: currencyCode))")
                         .foregroundColor(balance > 0 ? .green : (balance < 0 ? .red : .black))
                 }
             }

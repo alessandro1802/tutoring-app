@@ -22,12 +22,16 @@ struct LessonsView: View {
     private var isUserTutor: Bool {
         settings.first?.isUserTutor ?? false
     }
+    var currencyCode: String {
+        settings.first?.currencyCode ?? "USD"
+    }
     
     var body: some View {
         VStack(spacing: 0) {
             List {
                 ForEach(filteredLessons) { lesson in
-                    LessonRowView(lesson: lesson)
+                    LessonRowView(lesson: lesson,
+                                  currencyCode: currencyCode)
                         .onTapGesture {
                             selectedLesson = lesson
                         }
@@ -38,12 +42,12 @@ struct LessonsView: View {
                 if showAllLessons {
                     let balance = isUserTutor ? subject.calculateTutorsBalance() : subject.calculateBalance()
                     Text("Total balance: ")
-                    + Text("\(balance, format: .currency(code: "PLN"))")
+                    + Text("\(balance, format: .currency(code: currencyCode))")
                         .foregroundColor(balance > 0 ? .green : (balance < 0 ? .red : .black))
                 } else {
                     let balance = isUserTutor ? tutorsMonthBalance : currentMonthBalance
                     Text("Monthly balance: ")
-                    + Text("\(balance, format: .currency(code: "PLN"))")
+                    + Text("\(balance, format: .currency(code: currencyCode))")
                         .foregroundColor(balance > 0 ? .green : (balance < 0 ? .red : .black))
                 }
             }
@@ -119,6 +123,8 @@ struct LessonsView: View {
     
     struct LessonRowView: View {
         let lesson: Lesson
+        let currencyCode: String
+        
         var statusIcon: some View {
             Image(systemName: iconName)
                 .foregroundColor(iconColor)
@@ -144,7 +150,7 @@ struct LessonsView: View {
                 VStack(alignment: .leading) {
                     Text(lesson.date.formatted(date: .long, time: .shortened))
                         .font(.headline)
-                    Text("\(lesson.duration) min • \(lesson.price, format: .currency(code: "PLN"))")
+                    Text("\(lesson.duration) min • \(lesson.price, format: .currency(code: currencyCode))")
                         .font(.caption)
                     if let comment = lesson.comment {
                         Text(comment)

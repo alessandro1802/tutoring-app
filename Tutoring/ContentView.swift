@@ -15,6 +15,9 @@ struct ContentView: View {
     var isUserTutor: Bool {
         settings.first?.isUserTutor ?? false
     }
+    var currencyCode: String {
+        settings.first?.currencyCode ?? "USD"
+    }
 
     var body: some View {
         NavigationSplitView {
@@ -23,7 +26,9 @@ struct ContentView: View {
                     NavigationLink {
                         LessonsView(subject: subject)
                     } label: {
-                        SubjectRowView(subject: subject, isUserTutor: isUserTutor)
+                        SubjectRowView(subject: subject,
+                                       isUserTutor: isUserTutor,
+                                       currencyCode: currencyCode)
                     }
                 }
                 .onDelete(perform: deleteSubjects)
@@ -53,6 +58,7 @@ struct ContentView: View {
     struct SubjectRowView: View {
         let subject: Subject
         let isUserTutor: Bool
+        let currencyCode: String
         @Environment(\.modelContext) private var modelContext
         
         var body: some View {
@@ -69,7 +75,7 @@ struct ContentView: View {
                 HStack {
                     let balance = isUserTutor ? subject.calculateTutorsBalance() : subject.calculateBalance()
                     Text("Balance:")
-                    Text("\(balance, format: .currency(code: "PLN"))")
+                    Text("\(balance, format: .currency(code: currencyCode))")
                         .foregroundColor(balance > 0 ? .green : (balance < 0 ? .red : .black))
                 }
                 .font(.caption)

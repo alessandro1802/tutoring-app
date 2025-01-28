@@ -14,6 +14,10 @@ struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var settings: [AppSettings]
     @State private var isUserTutor: Bool = false
+    @State private var currencyCode: String = "USD"
+    
+    let currencyOptions = ["PLN", "UAH", "USD", "EUR", "GBP", "JPY"]
+    let defaultCurrencyCode: String = "USD"
     
     var body: some View {
         VStack(spacing: 0) {
@@ -24,7 +28,17 @@ struct SettingsView: View {
                             saveSettings(isTutor: newValue)
                         }
                 }
-                
+                Section("Currency") {
+                    Picker("Currency", selection: $currencyCode) {
+                        ForEach(currencyOptions, id: \.self) { currency in
+                            Text(currency).tag(currency)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                    .onChange(of: currencyCode) { _, newValue in
+                        saveCurrency(newValue)
+                    }
+                }
                 Section("About") {
                     LabeledContent("Version", value: "1.0")
                     Text("This application helps managing tutoring lessons, schedules, and payments for both tutors and students. Both types of users can track which lessons are paid. Students are able to add funds per subject and see how much they spend on learning, while teachers can fascilitate their earnings.")
@@ -45,7 +59,7 @@ struct SettingsView: View {
         .onAppear {
             // Update the state from the current settings when the view appears
             isUserTutor = settings.first?.isUserTutor ?? false
-            
+            currencyCode = settings.first?.currencyCode ?? defaultCurrencyCode
             // Create initial settings if none exist
             if settings.isEmpty {
                 let initialSettings = AppSettings(isUserTutor: false)
@@ -55,11 +69,23 @@ struct SettingsView: View {
         }
     }
     
+    // MARK: Saving
     private func saveSettings(isTutor: Bool) {
         if let existingSettings = settings.first {
             existingSettings.isUserTutor = isTutor
         } else {
             let newSettings = AppSettings(isUserTutor: isTutor)
+            modelContext.insert(newSettings)
+        }
+        try? modelContext.save()
+    }
+    
+    private func saveCurrency(_ currencyCode: String) {
+        if let existingSettings = settings.first {
+            existingSettings.currencyCode = currencyCode
+        } else {
+            let newSettings = AppSettings()
+            newSettings.currencyCode = currencyCode
             modelContext.insert(newSettings)
         }
         try? modelContext.save()

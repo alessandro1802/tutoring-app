@@ -24,6 +24,9 @@ struct SubjectDetailsView: View {
     private var isUserTutor: Bool {
         settings.first?.isUserTutor ?? false
     }
+    var currencyCode: String {
+        settings.first?.currencyCode ?? "USD"
+    }
     
     init(subject: Subject) {
         self.subject = subject
@@ -49,7 +52,7 @@ struct SubjectDetailsView: View {
                     HStack {
                         Text("Price")
                         Spacer()
-                        TextField("Price", value: $defaultPrice, format: .currency(code: "PLN"))
+                        TextField("Price", value: $defaultPrice, format: .currency(code: currencyCode))
                             .keyboardType(.decimalPad)
                             .multilineTextAlignment(.trailing)
                     }
@@ -79,7 +82,7 @@ struct SubjectDetailsView: View {
                     let balance = isUserTutor ? subject.calculateTutorsBalance() : subject.calculateBalance()
                     HStack {
                         Text("Total balance:")
-                        Text("\(balance, format: .currency(code: "PLN"))")
+                        Text("\(balance, format: .currency(code: currencyCode))")
                             .foregroundColor(balance > 0 ? .green : (balance < 0 ? .red : .black))
                     }
                 }

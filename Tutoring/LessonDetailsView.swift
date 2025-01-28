@@ -18,6 +18,10 @@ struct LessonDetailsView: View {
     @State private var duration: Double
     @State private var comment: String
     @State private var status: LessonStatus
+    @Query private var settings: [AppSettings]
+    var currencyCode: String {
+        settings.first?.currencyCode ?? "USD"
+    }
     
     init(lesson: Lesson) {
         self.lesson = lesson
@@ -37,7 +41,7 @@ struct LessonDetailsView: View {
                     HStack {
                         Text("Price")
                         Spacer()
-                        TextField("Price", value: $price, format: .currency(code: "PLN"))
+                        TextField("Price", value: $price, format: .currency(code: currencyCode))
                             .keyboardType(.decimalPad)
                             .multilineTextAlignment(.trailing)
                     }
