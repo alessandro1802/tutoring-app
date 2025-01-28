@@ -13,6 +13,7 @@ struct LessonsView: View {
     
     @Bindable var subject: Subject
     @State private var selectedMonth = Date()
+    @State private var monthlySchedule: Bool = false
     @State private var showAllLessons = false
     @State private var isAddingLesson = false
     @State private var showingDepositSheet = false
@@ -76,7 +77,10 @@ struct LessonsView: View {
         .navigationTitle(subject.name)
         .toolbar {
             ToolbarItem {
-                Button(action: showAddLessonSheet) {
+                Button(action: {
+                    monthlySchedule = false
+                    showAddLessonSheet()
+                }) {
                     Label("Add lesson", systemImage: "plus")
                 }
             }
@@ -84,6 +88,12 @@ struct LessonsView: View {
                 Menu {
                     Button(action: { showingSubjectDetails = true }) {
                         Label("Subject details", systemImage: "info.circle")
+                    }
+                    Button(action: {
+                        monthlySchedule = true
+                        showAddLessonSheet()
+                    }) {
+                        Label("Create monthly schedule", systemImage: "calendar.badge.plus")
                     }
                     if !isUserTutor {
                         Button(action: { showingDepositSheet = true }) {
@@ -105,7 +115,7 @@ struct LessonsView: View {
             LessonDetailsView(lesson: lesson)
         }
         .sheet(isPresented: $isAddingLesson) {
-            AddLessonView(subject: subject)
+            AddLessonView(subject: subject, monthlySchedule: monthlySchedule, selectedMonth: selectedMonth)
         }
         .sheet(isPresented: $showingSubjectDetails) {
             SubjectDetailsView(subject: subject)
