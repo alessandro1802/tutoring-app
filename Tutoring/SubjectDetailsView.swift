@@ -22,6 +22,7 @@ struct SubjectDetailsView: View {
     @State private var isArchived: Bool
     @State private var allowArchive: Bool
     @Query private var settings: [AppSettings]
+    
     private var isUserTutor: Bool {
         settings.first?.isUserTutor ?? false
     }
@@ -136,7 +137,7 @@ extension WeekDay: CaseIterable, CustomStringConvertible {
     
 }
 
-#Preview {  
-    let subject = Subject(name: "Math")
-    SubjectDetailsView(subject: subject)
-}
+//#Preview {  
+//    let subject = Subject(name: "Math")
+//    SubjectDetailsView(subject: subject)
+//}

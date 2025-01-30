@@ -76,12 +76,14 @@ struct LessonsView: View {
         }
         .navigationTitle(subject.name)
         .toolbar {
-            ToolbarItem {
-                Button(action: {
-                    monthlySchedule = false
-                    showAddLessonSheet()
-                }) {
-                    Label("Add lesson", systemImage: "plus")
+            if !subject.isArchived {
+                ToolbarItem {
+                    Button(action: {
+                        monthlySchedule = false
+                        showAddLessonSheet()
+                    }) {
+                        Label("Add lesson", systemImage: "plus")
+                    }
                 }
             }
             ToolbarItem(placement: .navigationBarTrailing) {
@@ -89,15 +91,19 @@ struct LessonsView: View {
                     Button(action: { showingSubjectDetails = true }) {
                         Label("Subject details", systemImage: "info.circle")
                     }
-                    Button(action: {
-                        monthlySchedule = true
-                        showAddLessonSheet()
-                    }) {
-                        Label("Create monthly schedule", systemImage: "calendar.badge.plus")
+                    if !subject.isArchived {
+                        Button(action: {
+                            monthlySchedule = true
+                            showAddLessonSheet()
+                        }) {
+                            Label("Create monthly schedule", systemImage: "calendar.badge.plus")
+                        }
                     }
                     if !isUserTutor {
-                        Button(action: { showingDepositSheet = true }) {
-                            Label("Add deposit", systemImage: "banknote.fill")
+                        if !subject.isArchived {
+                            Button(action: { showingDepositSheet = true }) {
+                                Label("Add deposit", systemImage: "banknote.fill")
+                            }
                         }
                         Button(action: { viewingDeposits = true }) {
                             Label("Deposit history", systemImage: "cedisign.arrow.trianglehead.counterclockwise.rotate.90")
