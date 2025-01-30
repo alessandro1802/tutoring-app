@@ -10,7 +10,6 @@ import SwiftData
 
 struct LessonsView: View {
     @Environment(\.modelContext) private var modelContext
-    
     @Bindable var subject: Subject
     @State private var selectedMonth = Date()
     @State private var monthlySchedule: Bool = false
@@ -21,6 +20,7 @@ struct LessonsView: View {
     @State private var showingSubjectDetails = false
     @State private var selectedLesson: Lesson?
     @Query private var settings: [AppSettings]
+    
     private var isUserTutor: Bool {
         settings.first?.isUserTutor ?? false
     }
@@ -182,13 +182,11 @@ struct LessonsView: View {
     
     // MARK: Lesson management
     private func deleteLessons(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                let lesson = filteredLessons[index]
-                modelContext.delete(lesson)
-            }
-            try? modelContext.save()
+        let lessonsToDelete = offsets.map { filteredLessons[$0] }
+        for lesson in lessonsToDelete {
+            modelContext.delete(lesson)
         }
+        try? modelContext.save()
     }
     
     private func showAddLessonSheet() {
@@ -212,7 +210,7 @@ struct LessonsView: View {
         }
     }
     
-    // MARK: Balance
+    // MARK: Balances
     private var carryOverBalance: Double {
         let previousMonthEnd = Calendar.current.date(byAdding: .month, value: -1, to: selectedMonth)!
         return subject.lessons

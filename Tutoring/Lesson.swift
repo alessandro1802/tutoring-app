@@ -23,7 +23,7 @@ class Lesson {
     var duration: Int  // in minutes
     var comment: String?
     
-    @Relationship(deleteRule: .cascade) var subject: Subject
+    @Relationship(inverse: \Subject.lessons) var subject: Subject?
     
     init(
         id: UUID = UUID(),

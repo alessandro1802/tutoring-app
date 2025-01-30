@@ -11,8 +11,9 @@ import SwiftData
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var showArchived: Bool = false
-    @Query(sort: \Subject.timestamp, order: .reverse) private var subjects: [Subject]
+    @Query private var subjects: [Subject]
     @Query private var settings: [AppSettings]
+    
     var isUserTutor: Bool {
         settings.first?.isUserTutor ?? false
     }
@@ -23,7 +24,7 @@ struct ContentView: View {
     var body: some View {
         NavigationSplitView {
             List {
-                ForEach(subjects.filter({ $0.isArchived == showArchived }).sorted(by: { $0.name < $1.name })) { subject in
+                ForEach(filteredSubjects) { subject in
                     NavigationLink {
                         LessonsView(subject: subject)
                     } label: {
@@ -70,7 +71,13 @@ struct ContentView: View {
         }
     }
     
-    // MARK: Subject view
+    // MARK: Subject displaying
+    private var filteredSubjects: [Subject] {
+        subjects
+            .filter { $0.isArchived == showArchived }
+            .sorted { $0.name < $1.name }
+    }
+    
     struct SubjectRowView: View {
         let subject: Subject
         let isUserTutor: Bool
@@ -81,13 +88,11 @@ struct ContentView: View {
             VStack(alignment: .leading, spacing: 8) {
                 Text(subject.name)
                     .font(.headline)
-                
                 if let comment = subject.comment, !comment.isEmpty {
                     Text(comment)
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
-                
                 HStack {
                     let balance = isUserTutor ? subject.calculateTutorsBalance() : subject.calculateBalance()
                     Text("Balance:")
@@ -97,6 +102,7 @@ struct ContentView: View {
                 .font(.caption)
             }
         }
+        
     }
     
     private func toggleArchiveView() {
@@ -131,7 +137,6 @@ struct ContentView: View {
                 )
                 withAnimation {
                     modelContext.insert(newSubject)
-                    // Save changes to the persistent store
                     try? modelContext.save()
                 }
             } else {
@@ -149,7 +154,6 @@ struct ContentView: View {
                         attributes: [NSAttributedString.Key.foregroundColor: UIColor.red]
                     )
                 }
-                // Re-present the alert to keep it open
                 if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
                    let rootViewController = windowScene.windows.first?.rootViewController {
                     rootViewController.present(alert, animated: true, completion: nil)
@@ -158,7 +162,6 @@ struct ContentView: View {
         }
         alert.addAction(addAction)
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-        // Present the alert
         if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
            let rootViewController = windowScene.windows.first?.rootViewController {
             rootViewController.present(alert, animated: true, completion: nil)
@@ -166,19 +169,16 @@ struct ContentView: View {
     }
 
     private func deleteSubjects(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                let subject = subjects[index]
-                modelContext.delete(subject)
-            }
-            // Save changes to the persistent store
-            try? modelContext.save()
+        for index in offsets {
+            let subject = filteredSubjects[index]
+            modelContext.delete(subject)
         }
+        try? modelContext.save()
     }
-
+    
 }
 
-#Preview {
-    ContentView()
-        .modelContainer(for: Subject.self, inMemory: true)
-}
+//#Preview {
+//    ContentView()
+//        .modelContainer(for: Subject.self, inMemory: true)
+//}

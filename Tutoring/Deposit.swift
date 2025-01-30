@@ -13,7 +13,8 @@ class Deposit {
     var id: UUID
     var amount: Double
     var date: Date
-    @Relationship(deleteRule: .cascade) var subject: Subject
+    
+    @Relationship(inverse: \Subject.deposits) var subject: Subject?
     
     init(
         id: UUID = UUID(),

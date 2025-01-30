@@ -32,7 +32,6 @@ final class Subject {
     var defaultHour: Int
     var defaultMinute: Int
     
-    // Relationships
     @Relationship(deleteRule: .cascade) var lessons: [Lesson] = []
     @Relationship(deleteRule: .cascade) var deposits: [Deposit] = []
     
