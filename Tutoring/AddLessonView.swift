@@ -11,9 +11,8 @@ import SwiftData
 struct AddLessonView: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.modelContext) private var modelContext
-    
     @Bindable var subject: Subject
-    @State private var monthlySchedule: Bool = false
+    @State private var monthlySchedule: Bool?
     @State private var defaultDayOfWeek: WeekDay
     @State private var selectedMonth: Date
     @State private var date = Date()
@@ -22,6 +21,7 @@ struct AddLessonView: View {
     @State private var comment: String = ""
     @State private var status: LessonStatus = .new
     @Query private var settings: [AppSettings]
+    
     var currencyCode: String {
         settings.first?.currencyCode ?? "USD"
     }
@@ -40,7 +40,7 @@ struct AddLessonView: View {
         NavigationView {
             Form {
                 Section(header: Text("Lesson Details")) {
-                    if monthlySchedule {
+                    if monthlySchedule! {
                         Picker("Day of week", selection: $defaultDayOfWeek) {
                             ForEach(WeekDay.allCases, id: \.self) { day in
                                 Text(day.description).tag(day)
@@ -65,7 +65,7 @@ struct AddLessonView: View {
                             .multilineTextAlignment(.trailing)
                     }
                 }
-                if !monthlySchedule {
+                if !monthlySchedule! {
                     Section(header: Text("Status")) {
                         Picker("Status", selection: $status) {
                             Text("🟦 New").tag(LessonStatus.new)
@@ -83,7 +83,7 @@ struct AddLessonView: View {
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        if monthlySchedule {
+                        if monthlySchedule! {
                             createMonthlySchedule()
                         } else {
                             addLesson()
@@ -167,11 +167,11 @@ struct AddLessonView: View {
     
 }
 
-#Preview {
-    let config = ModelConfiguration(isStoredInMemoryOnly: true)
-    let container = try! ModelContainer(for: Subject.self, configurations: config)
-    
-    let subject = Subject(name: "Math")
-    AddLessonView(subject: subject, monthlySchedule: false, selectedMonth: Date())
-        .modelContainer(container)
-}
+//#Preview {
+//    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+//    let container = try! ModelContainer(for: Subject.self, configurations: config)
+//    
+//    let subject = Subject(name: "Math")
+//    AddLessonView(subject: subject, monthlySchedule: false, selectedMonth: Date())
+//        .modelContainer(container)
+//}
